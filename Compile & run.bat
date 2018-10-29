@@ -1,4 +1,4 @@
 @echo off
 
-"C:\Users\Alex\AppData\Local\bin\NASM\NASM.exe" -f bin "C:\Users\Alex\Desktop\ST3OS\bootloader.asm" -o "C:\Users\Alex\Desktop\ST3OS\bootloader.iso"
-"C:\Program Files\qemu\qemu-system-x86_64.exe" "C:\Users\Alex\Desktop\ST3OS\bootloader.iso"
+"C:\Users\%username%\AppData\Local\bin\NASM\NASM.exe" -f bin "%~dp0\bootloader.asm" -o "%~dp0\bootloader.iso"
+"C:\Program Files\qemu\qemu-system-x86_64.exe" "%~dp0\bootloader.iso"

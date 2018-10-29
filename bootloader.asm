@@ -10,7 +10,7 @@ start:
 	mov ds, ax
 
 	call cls
-	;call CursorOff
+	call CursorOff
 	
 	mov si, _Intro
 	call print_string
@@ -23,19 +23,35 @@ start:
 	call print_string
 	
 	mov ah, 0x02
-	mov bh, 0x00
-	mov dh, 0x01
-	mov dl, 0x9
+	mov bh, 0x00 ; page
+	mov dh, 0x01 ; y cordinate/row
+	mov dl, 0x9 ; x cordinate/col
 	int 10h
 	
 	mov si, equal
 	call print_string
+	
+	mov ah, 0x02
+	mov bh, 0x00 ; page
+	mov dh, 0x05 ; y cordinate/row ; set to 5 so we have room to put the actual loading status.
+	mov dl, 0x0 ; x cordinate/col
+	int 10h
 	
 	mov si, _ProtecMode
 	call print_string
 	
 	mov ah, 89h
 	int 15
+	
+	mov ah, 0x02
+	mov bh, 0x00 ; page
+	mov dh, 0x01 ; y cordinate/row
+	mov dl, 0x9 ; x cordinate/col
+	add dl, 0x01
+	int 10h
+	
+	mov si, equal
+	call print_string
 	
 	jmp $			; Jump here - infinite loop!
 
@@ -44,7 +60,7 @@ start:
 	_Version db 'DEV-0.0.02', 13, 10 , 0
 	_Load db 'Loading [           ]' ,0
 	_Loadinit db 13,10,'Initalizing load.',0
-	_ProtecMode db 13, 10, 13, 10, 'Enter protected mode', 0
+	_ProtecMode db 'Enter protected mode', 0
 	dot db '.' ,0
 	equal db '=',0
 	straightline db '| ',0
