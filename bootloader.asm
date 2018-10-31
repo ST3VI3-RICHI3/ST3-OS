@@ -24,17 +24,19 @@ start:
 	
 	mov ah, 0x02
 	mov bh, 0x00 ; page
-	mov dh, 0x01 ; y cordinate/row
-	mov dl, 0x9 ; x cordinate/col
+	mov dh, 0x01 ; y coordinate/row
+	mov dl, 0x9 ; x coordinate/col
 	int 10h
 	
 	mov si, equal
 	call print_string
 	
+	call wait1s
+	
 	mov ah, 0x02
 	mov bh, 0x00 ; page
-	mov dh, 0x05 ; y cordinate/row ; set to 5 so we have room to put the actual loading status.
-	mov dl, 0x0 ; x cordinate/col
+	mov dh, 0x05 ; y coordinate/row ; set to 5 so we have room to put the actual loading status.
+	mov dl, 0x0 ; x coordinate/col
 	int 10h
 	
 	mov si, _ProtecMode
@@ -45,16 +47,17 @@ start:
 	
 	mov ah, 0x02
 	mov bh, 0x00 ; page
-	mov dh, 0x01 ; y cordinate/row
-	mov dl, 0x9 ; x cordinate/col
-	add dl, 0x01
+	mov dh, 0x01 ; y coordinate/row
+	mov dl, 0x9 ; x coordinate/col
+	add dl, 0x01 ; move the x coordinate by 1 so it is equal to 10.
 	int 10h
 	
 	mov si, equal
 	call print_string
 	
 	jmp $			; Jump here - infinite loop!
-
+	hlt ;emergency stop.
+	
 
 	_Intro db 'ST3 OS Bootloader version: ', 0
 	_Version db 'DEV-0.0.02', 13, 10 , 0
@@ -63,17 +66,19 @@ start:
 	_ProtecMode db 'Enter protected mode', 0
 	dot db '.' ,0
 	equal db '=',0
-	straightline db '| ',0
-	forwardslash db '/' ,0
-	horozontalline db '-' ,0
-	backslash db '\' ,0
 	_Done db 'Done!', 13, 10, 0
 
 cls:
 	mov ah, 0x00
-	mov al, 0x03  ; text mode 80x25 16 colours
+	mov al, 0x03  ; text mode 80x25 16 colors
 	int 10h
 	ret
+
+wait1s:
+	MOV     CX, 0FH
+	MOV     DX, 4240H
+	MOV     AH, 86H
+	INT     15H
 
 CursorOff:
 	pushf
