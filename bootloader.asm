@@ -56,6 +56,8 @@ start:
 	call print_string
 	
 	jmp $			; Jump here - infinite loop!
+	mov si, _Err1
+	call print_string
 	hlt ;emergency stop.
 	
 
@@ -67,6 +69,7 @@ start:
 	dot db '.' ,0
 	equal db '=',0
 	_Done db 'Done!', 13, 10, 0
+	_Err1 db 13, 10, 'WARNING: Code overun detected, entering halt (hlt) mode, error code: 1.', 0
 
 cls:
 	mov ah, 0x00
