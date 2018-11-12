@@ -48,8 +48,7 @@ start:
 	mov ah, 0x02
 	mov bh, 0x00 ; page
 	mov dh, 0x01 ; y coordinate/row
-	mov dl, 0x9 ; x coordinate/col
-	add dl, 0x01 ; move the x coordinate by 1 so it is equal to 10.
+	mov dl, 0xa ; x coordinate/col
 	int 10h
 	
 	mov si, equal
@@ -64,12 +63,12 @@ start:
 	_Intro db 'ST3 OS Bootloader version: ', 0
 	_Version db 'DEV-0.0.02', 13, 10 , 0
 	_Load db 'Loading [           ]' ,0
-	_Loadinit db 13,10,'Initalizing load.',0
+	_Loadinit db 13,10,'Initializing load.',0
 	_ProtecMode db 'Enter protected mode', 0
 	dot db '.' ,0
 	equal db '=',0
 	_Done db 'Done!', 13, 10, 0
-	_Err1 db 13, 10, 'WARNING: Code overun detected, entering halt (hlt) mode, error code: 1.', 0
+	_Err1 db 13, 10, 'WARNING: Code overrun detected, entering halt (hlt) mode, error code: 1.', 0
 
 cls:
 	mov ah, 0x00
@@ -121,5 +120,5 @@ print_string:			; Routine: output string in SI to screen
 	ret
 
 
-	times 510-($-$$) db 0	; Pad remainder of boot sector with 0s
-	dw 0xAA55		; The standard PC boot signature
+TIMES 510 - ($ - $$) db 0 ;fill resting bytes with zero
+DW 0xAA55 ;end of bootloader (2 bytes)
