@@ -1,4 +1,5 @@
-BITS 16
+[BITS 16]
+[ORG 0]
 
 start:
 	mov ax, 07C0h		; Set up 4K stack space after this bootloader
@@ -16,55 +17,23 @@ start:
 	call print_string
 	mov si, _Version
 	call print_string
-
-	mov si, _Load
-	call print_string
-	mov si, _Loadinit
-	call print_string
-	
-	mov ah, 0x02
-	mov bh, 0x00 ; page
-	mov dh, 0x01 ; y coordinate/row
-	mov dl, 0x9 ; x coordinate/col
-	int 10h
-	
-	mov si, equal
-	call print_string
 	
 	call wait1s
 	
-	mov ah, 0x02
-	mov bh, 0x00 ; page
-	mov dh, 0x05 ; y coordinate/row ; set to 5 so we have room to put the actual loading status.
-	mov dl, 0x0 ; x coordinate/col
-	int 10h
+	mov ax,0200h
+	mov es,ax
 	
-	mov si, _ProtecMode
-	call print_string
-	
-	mov ah, 89h
-	int 15
-	
-	mov ah, 0x02
-	mov bh, 0x00 ; page
-	mov dh, 0x01 ; y coordinate/row
-	mov dl, 0xa ; x coordinate/col
-	int 10h
-	
-	mov si, equal
-	call print_string
+	jmp 0200h
 	
 	jmp $			; Jump here - infinite loop!
+	cli
 	mov si, _Err1
 	call print_string
 	hlt ;emergency stop.
 	
 
 	_Intro db 'ST3 OS Bootloader version: ', 0
-	_Version db 'DEV-0.0.02', 13, 10 , 0
-	_Load db 'Loading [           ]' ,0
-	_Loadinit db 13,10,'Initializing load.',0
-	_ProtecMode db 'Enter protected mode', 0
+	_Version db 'DEV-0.0.03', 13, 10 , 0
 	dot db '.' ,0
 	equal db '=',0
 	_Done db 'Done!', 13, 10, 0
@@ -120,5 +89,5 @@ print_string:			; Routine: output string in SI to screen
 	ret
 
 
-TIMES 510 - ($ - $$) db 0 ;fill resting bytes with zero
+TIMES 502 - ($ - $$) db 0 ;fill resting bytes with zero
 DW 0xAA55 ;end of bootloader (2 bytes)
