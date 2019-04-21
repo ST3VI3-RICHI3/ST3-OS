@@ -1,93 +1,46 @@
-[BITS 16]
-[ORG 0]
+[bits 16]
+[org 0x7c00]
 
-start:
-	mov ax, 07C0h		; Set up 4K stack space after this bootloader
-	add ax, 288		; (4096 + 512) / 16 bytes per paragraph
+section .text
+	global Main
+
+Main:
+cli
+jmp 0x00:Segment_Zero
+Segment_Zero:
+	xor ax, ax
 	mov ss, ax
-	mov sp, 4096
-	
-	mov ax, 07C0h		; Set data segment to where we're loaded
 	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov sp, Main
+	cld
+sti
 
-	call cls
-	call CursorOff
-	
-	mov si, _Intro
-	call print_string
-	mov si, _Version
-	call print_string
-	
-	call wait1s
-	
-	mov ax,0200h
-	mov es,ax
-	
-	jmp 0200h
-	
-	jmp $			; Jump here - infinite loop!
-	cli
-	mov si, _Err1
-	call print_string
-	hlt ;emergency stop.
-	
+push ax
+xor ax, ax
+int 0x13
+pop ax
 
-	_Intro db 'ST3 OS Bootloader version: ', 0
-	_Version db 'DEV-0.0.03', 13, 10 , 0
-	dot db '.' ,0
-	equal db '=',0
-	_Done db 'Done!', 13, 10, 0
-	_Err1 db 13, 10, 'WARNING: Code overrun detected, entering halt (hlt) mode, error code: 1.', 0
+mov al, 1 ;Sectors to read
+mov cl, 2 ;Sector to read, bootloader is 1, not 0!
+call disk_read_hdd
 
-cls:
-	mov ah, 0x00
-	mov al, 0x03  ; text mode 80x25 16 colors
-	int 10h
-	ret
+jmp S2_Test
 
-wait1s:
-	MOV     CX, 0FH
-	MOV     DX, 4240H
-	MOV     AH, 86H
-	INT     15H
+jmp $
 
-CursorOff:
-	pushf
-	push eax
-	push edx
- 
-	mov dx, 0x3D4
-	mov al, 0xA	; low cursor shape register
-	out dx, al
- 
-	inc dx
-	mov al, 0x20	; bits 6-7 unused, bit 5 disables the cursor, bits 0-4 control the cursor shape
-	out dx, al
- 
-	pop edx
-	pop eax
-	popf
-	ret
+_Read_err: db "There was an error reading from disk, halting to prevent disk damage.", 0
+_S2_Test: db "loaded second sector.", 0
 
-CursorOn:
-	mov  ah, 1
-	mov  cx, 4          ;◄■■ BIG CURSOR.
-	int  10h
-	ret
+%include "./Bootloader_resource/text_print.asm"
+%include "./Bootloader_resource/disk_reading.asm"
 
-print_string:			; Routine: output string in SI to screen
-	mov ah, 0Eh		; int 10h 'print char' function
+times 510 - ($ - $$) db 0
+dw 0xaa55
 
-.repeat:
-	lodsb			; Get character from string
-	cmp al, 0
-	je .done		; If char is zero, end of string
-	int 10h			; Otherwise, print it
-	jmp .repeat
-
-.done:
-	ret
-
-
-TIMES 502 - ($ - $$) db 0 ;fill resting bytes with zero
-DW 0xAA55 ;end of bootloader (2 bytes)
+S2_Test:
+	mov si, _S2_Test
+	call print_str
+times 512 db 0
