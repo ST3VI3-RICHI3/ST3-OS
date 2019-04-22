@@ -27,7 +27,13 @@ mov al, 1 ;Sectors to read
 mov cl, 2 ;Sector to read, bootloader is 1, not 0!
 call disk_read_hdd
 
-jmp S2_Test
+;mov ax, 0x2400 ;Theese two lines disable the A20 line.
+;int 0x15
+
+call testA20
+
+mov dx, ax
+call print_hex
 
 jmp $
 
@@ -36,6 +42,7 @@ _S2_Test: db "loaded second sector.", 0
 
 %include "./Bootloader_resource/text_print.asm"
 %include "./Bootloader_resource/disk_reading.asm"
+%include "./Bootloader_resource/testA20.asm"
 
 times 510 - ($ - $$) db 0
 dw 0xaa55
